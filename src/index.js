@@ -37,7 +37,7 @@ const snake = {
   vy: 1, //determines direction | pos == down  | neg == up
   xCurrentDirection: true,
   userInput: 'ArrowRight',
-  nextInput: '',
+  nextInput: 'ArrowRight',
   draw() {
     ctx.strokeStyle = SNAKE_COLOR;
     ctx.fillRect(this.x, this.y, this.tSize, this.tSize);
@@ -67,55 +67,41 @@ function drawMap() {
 
 function drawSnake() {
   snake.draw();
-  // updateDirection();
+
+  updateDirection();
+
   switch (snake.userInput) {
     case 'ArrowRight':
-      if (snake.y % 32 === 0) {
-        snake.x += snake.vx * VELOCITY;
-      }
+      snake.x += snake.vx * VELOCITY;
       break;
     case 'ArrowLeft':
-      if (snake.y % 32 === 0) {
-        snake.x += -1 * snake.vx * VELOCITY;
-      }
+      snake.x += -1 * snake.vx * VELOCITY;
       break;
     case 'ArrowUp':
-      if (snake.x % 32 === 0) {
-        snake.y += -1 * snake.vy * VELOCITY;
-      }
+      snake.y += -1 * snake.vy * VELOCITY;
       break;
     case 'ArrowDown':
-      if (snake.x % 32 === 0) {
-        snake.y += snake.vy * VELOCITY;
-      }
+      snake.y += snake.vy * VELOCITY;
       break;
     default:
       console.log('reached default');
   }
-
-  // if (snake.xCurrentDirection === 'ArrowRight' && snake.y % 64 === 0) {
-  //   snake.x += snake.vx * VELOCITY;
-  // }
-
-  // if (!snake.xCurrentDirection && snake.x % 64 === 0) {
-  //   snake.y += snake.vy * VELOCITY;
-  // }
 }
 
 function updateDirection() {
   if (
     snake.userInput !== snake.nextInput &&
-    (snake.userInput === 'ArrowRight' || snake.userInput === 'ArrowLeft') &&
-    snake.x % snake.tSize === 0
+    (snake.nextInput === 'ArrowRight' || snake.nextInput === 'ArrowLeft') &&
+    snake.y % 32 === 0
   ) {
-    console.log('asdf');
     snake.userInput = snake.nextInput;
-  } else if (
+  }
+
+  if (
     snake.userInput !== snake.nextInput &&
-    (snake.userInput === 'ArrowUp' || snake.userInput === 'ArrowDown') &&
-    snake.y % snake.tSize === 0
+    (snake.nextInput === 'ArrowUp' || snake.nextInput === 'ArrowDown') &&
+    snake.x % 32 === 0
   ) {
-    console.log('fas');
     snake.userInput = snake.nextInput;
   }
 }
@@ -134,7 +120,7 @@ function handleKeyboardInput() {
       keyName === 'ArrowLeft' ||
       keyName === 'ArrowRight'
     ) {
-      snake.userInput = keyName;
+      snake.nextInput = keyName;
       snake.directionChanged = true;
     }
   });
