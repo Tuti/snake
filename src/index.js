@@ -36,7 +36,8 @@ const snake = {
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
   xCurrentDirection: true,
-  directionChanged: false,
+  userInput: 'ArrowRight',
+  nextInput: '',
   draw() {
     ctx.strokeStyle = SNAKE_COLOR;
     ctx.fillRect(this.x, this.y, this.tSize, this.tSize);
@@ -66,33 +67,58 @@ function drawMap() {
 
 function drawSnake() {
   snake.draw();
-  updateDirection();
-  if (snake.xCurrentDirection && snake.y % 64 === 0) {
-    snake.x += snake.vx * VELOCITY;
+  // updateDirection();
+  switch (snake.userInput) {
+    case 'ArrowRight':
+      if (snake.y % 32 === 0) {
+        snake.x += snake.vx * VELOCITY;
+      }
+      break;
+    case 'ArrowLeft':
+      if (snake.y % 32 === 0) {
+        snake.x += -1 * snake.vx * VELOCITY;
+      }
+      break;
+    case 'ArrowUp':
+      if (snake.x % 32 === 0) {
+        snake.y += -1 * snake.vy * VELOCITY;
+      }
+      break;
+    case 'ArrowDown':
+      if (snake.x % 32 === 0) {
+        snake.y += snake.vy * VELOCITY;
+      }
+      break;
+    default:
+      console.log('reached default');
   }
 
-  if (!snake.xCurrentDirection && snake.x % 64 === 0) {
-    snake.y += snake.vy * VELOCITY;
-  }
+  // if (snake.xCurrentDirection === 'ArrowRight' && snake.y % 64 === 0) {
+  //   snake.x += snake.vx * VELOCITY;
+  // }
+
+  // if (!snake.xCurrentDirection && snake.x % 64 === 0) {
+  //   snake.y += snake.vy * VELOCITY;
+  // }
 }
 
 function updateDirection() {
-  if (snake.directionChanged && snake.xCurrentDirection && snake.x % 64 === 0) {
-    console.log('updated direction to y');
-    snake.xCurrentDirection = false;
-    snake.directionChanged = false;
-  }
   if (
-    snake.directionChanged &&
-    !snake.xCurrentDirection &&
-    snake.y % 64 === 0
+    snake.userInput !== snake.nextInput &&
+    (snake.userInput === 'ArrowRight' || snake.userInput === 'ArrowLeft') &&
+    snake.x % snake.tSize === 0
   ) {
-    console.log('updated direction to x');
-    snake.xCurrentDirection = true;
-    snake.directionChanged = false;
+    console.log('asdf');
+    snake.userInput = snake.nextInput;
+  } else if (
+    snake.userInput !== snake.nextInput &&
+    (snake.userInput === 'ArrowUp' || snake.userInput === 'ArrowDown') &&
+    snake.y % snake.tSize === 0
+  ) {
+    console.log('fas');
+    snake.userInput = snake.nextInput;
   }
 }
-
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.width);
   drawMap();
@@ -102,18 +128,14 @@ function draw() {
 function handleKeyboardInput() {
   document.addEventListener('keydown', (event) => {
     const keyName = event.key;
-    if (keyName === 'ArrowUp') {
+    if (
+      keyName === 'ArrowUp' ||
+      keyName === 'ArrowDown' ||
+      keyName === 'ArrowLeft' ||
+      keyName === 'ArrowRight'
+    ) {
+      snake.userInput = keyName;
       snake.directionChanged = true;
-      snake.vy = -1;
-    } else if (keyName === 'ArrowDown') {
-      snake.directionChanged = true;
-      snake.vy = 1;
-    } else if (keyName === 'ArrowLeft') {
-      snake.directionChanged = true;
-      snake.vx = -1;
-    } else if (keyName === 'ArrowRight') {
-      snake.directionChanged = true;
-      snake.vx = 1;
     }
   });
 }
