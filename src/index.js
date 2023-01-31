@@ -8,13 +8,21 @@ const tileAtlas = new Image();
 tileAtlas.src = './sprites/map.png';
 
 const map = {
-  cols: 8,
-  rows: 8,
-  tSize: 64,
+  cols: 16,
+  rows: 16,
+  tSize: 32,
   tiles: [
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1,
   ],
   getTile(col, row) {
     return this.tiles[row * map.cols + col];
@@ -24,7 +32,7 @@ const map = {
 const snake = {
   x: 0,
   y: 0,
-  tSize: 64,
+  tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
   xCurrentDirection: true,
@@ -38,24 +46,20 @@ const snake = {
 function drawMap() {
   for (let c = 0; c < map.cols; c++) {
     for (let r = 0; r < map.rows; r++) {
-      const tile = map.getTile(c, r);
-      if (tile !== 0) {
-        // 0 => empty tile
-        ctx.drawImage(
-          tileAtlas, // image
-          (tile - 1) * map.tSize, // source x
-          0, // source y
-          map.tSize, // source width
-          map.tSize, // source height
-          c * map.tSize, // target x
-          r * map.tSize, // target y
-          map.tSize, // target width
-          map.tSize // target height
-        );
+      ctx.drawImage(
+        tileAtlas, // image
+        map.tSize, // source x
+        0, // source y
+        map.tSize, // source width
+        map.tSize, // source height
+        c * map.tSize, // target x
+        r * map.tSize, // target y
+        map.tSize, // target width
+        map.tSize // target height
+      );
 
-        ctx.strokeStyle = 'black';
-        ctx.strokeRect(c * map.tSize, r * map.tSize, map.tSize, map.tSize);
-      }
+      ctx.strokeStyle = 'black';
+      ctx.strokeRect(c * map.tSize, r * map.tSize, map.tSize, map.tSize);
     }
   }
 }
