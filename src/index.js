@@ -1,4 +1,5 @@
-const SNAKE_COLOR = '#50C878';
+const SNAKE_COLOR = 'rebeccapurple';
+const APPLE_COLOR = '#ff0800';
 const VELOCITY = 2;
 
 const canvas = document.getElementById('canvas');
@@ -32,6 +33,7 @@ const map = {
 const snake = {
   x: 0,
   y: 0,
+  currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
@@ -39,12 +41,17 @@ const snake = {
   userInput: 'ArrowRight',
   nextInput: 'ArrowRight',
   draw() {
-    ctx.strokeStyle = SNAKE_COLOR;
+    ctx.fillStyle = SNAKE_COLOR;
     ctx.fillRect(this.x, this.y, this.tSize, this.tSize);
   },
 };
 
-function drawMap() {
+const game = {
+  score: 0,
+  applePos: [7, 7],
+};
+
+function renderMap() {
   for (let c = 0; c < map.cols; c++) {
     for (let r = 0; r < map.rows; r++) {
       ctx.drawImage(
@@ -65,11 +72,8 @@ function drawMap() {
   }
 }
 
-function drawSnake() {
+function renderSnake() {
   snake.draw();
-
-  updateDirection();
-
   switch (snake.userInput) {
     case 'ArrowRight':
       snake.x += snake.vx * VELOCITY;
@@ -86,6 +90,11 @@ function drawSnake() {
     default:
       console.log('reached default');
   }
+}
+
+function renderApple(col, row) {
+  ctx.fillStyle = APPLE_COLOR;
+  ctx.fillRect(col * map.tSize, row * map.tSize, map.tSize, map.tSize);
 }
 
 function updateDirection() {
@@ -105,10 +114,26 @@ function updateDirection() {
     snake.userInput = snake.nextInput;
   }
 }
-function draw() {
+
+function updateScore() {
+  const scoreElement = document.getElementById('score');
+
+  game.score += 1;
+  scoreElement.innerText = game.score;
+}
+
+function checkCollision() {}
+function update() {
+  updateDirection();
+  // updateScore();
+  checkCollision();
+}
+
+function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.width);
-  drawMap();
-  drawSnake();
+  renderMap();
+  renderApple(game.applePos[0], game.applePos[1]);
+  renderSnake();
 }
 
 function handleKeyboardInput() {
@@ -129,7 +154,8 @@ function handleKeyboardInput() {
 (() => {
   function main() {
     window.requestAnimationFrame(main);
-    draw();
+    update();
+    render();
   }
 
   handleKeyboardInput();
