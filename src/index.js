@@ -31,19 +31,21 @@ const map = {
 };
 
 const snake = {
-  x: 32,
-  y: 32,
-  body: [{ x: 0, y: 32 }],
+  x: toCord(3),
+  y: toCord(3),
+  body: [{ x: toCord(2), y: toCord(3) }],
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
   xCurrentDirection: true,
-  userInput: 'ArrowRight',
-  nextInput: 'ArrowRight',
+  userInput: '',
+  nextInput: '',
   draw() {
     ctx.fillStyle = SNAKE_COLOR;
     ctx.fillRect(this.x, this.y, this.tSize, this.tSize);
+    this.drawCorners(this.x, this.y);
+    this.drawBody();
   },
   drawBody() {
     if (this.body.length === 0) {
@@ -51,8 +53,18 @@ const snake = {
     }
 
     for (let i = 0; i < this.body.length; i++) {
+      ctx.fillStyle = SNAKE_COLOR;
       ctx.fillRect(this.body[i].x, this.body[i].y, this.tSize, this.tSize);
+      this.drawCorners(this.body[i].x, this.body[i].y);
     }
+  },
+  drawCorners(x, y) {
+    cords = calcCornerCords(x, y);
+    ctx.fillStyle = 'white';
+    ctx.fillRect(cords[0].x, cords[0].y, 4, 4);
+    ctx.fillRect(cords[1].x - 4, cords[1].y, 4, 4);
+    ctx.fillRect(cords[2].x - 4, cords[2].y - 4, 4, 4);
+    ctx.fillRect(cords[3].x, cords[3].y - 4, 4, 4);
   },
 };
 
@@ -60,6 +72,34 @@ const game = {
   score: 0,
   applePos: [7, 7],
 };
+
+function toCord(cord) {
+  return (cord - 1) * map.tSize;
+}
+
+function calcCornerCords(x, y) {
+  //x1 == original point x | x2 == top right | x3 == bottom right | x4 == bottom left
+  //y2 == original point y | y2 == top right | y3 == bottom right | y4 == bottom left
+
+  let x1, x2, x3, x4, y1, y2, y3, y4;
+  x1 = x;
+  y1 = y;
+
+  x2 = x + map.tSize;
+  y2 = y;
+
+  x3 = x + map.tSize;
+  y3 = y + map.tSize;
+
+  x4 = x;
+  y4 = y + map.tSize;
+  return [
+    { x: x, y: y },
+    { x: x + map.tSize, y: y },
+    { x: x + map.tSize, y: y + map.tSize },
+    { x: x, y: y + map.tSize },
+  ];
+}
 
 function renderMap() {
   for (let c = 0; c < map.cols; c++) {
@@ -140,6 +180,7 @@ function update() {
 }
 
 function render() {
+  //TODO: implement locked 60fps
   ctx.clearRect(0, 0, canvas.width, canvas.width);
   renderMap();
   renderApple(game.applePos[0], game.applePos[1]);
