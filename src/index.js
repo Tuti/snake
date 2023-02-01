@@ -1,6 +1,6 @@
 const SNAKE_COLOR = 'rebeccapurple';
 const APPLE_COLOR = '#ff0800';
-const VELOCITY = 2;
+const VELOCITY = 1;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -31,8 +31,9 @@ const map = {
 };
 
 const snake = {
-  x: 0,
-  y: 0,
+  x: 32,
+  y: 32,
+  body: [{ x: 0, y: 32 }],
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
@@ -43,6 +44,15 @@ const snake = {
   draw() {
     ctx.fillStyle = SNAKE_COLOR;
     ctx.fillRect(this.x, this.y, this.tSize, this.tSize);
+  },
+  drawBody() {
+    if (this.body.length === 0) {
+      return;
+    }
+
+    for (let i = 0; i < this.body.length; i++) {
+      ctx.fillRect(this.body[i].x, this.body[i].y, this.tSize, this.tSize);
+    }
   },
 };
 
