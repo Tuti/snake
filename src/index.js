@@ -1,6 +1,6 @@
 const SNAKE_COLOR = 'rebeccapurple';
 const APPLE_COLOR = '#ff0800';
-const VELOCITY = 1;
+const VELOCITY = 2;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -31,9 +31,9 @@ const map = {
 };
 
 const snake = {
-  x: toCord(3),
-  y: toCord(3),
-  body: [{ x: toCord(2), y: toCord(3) }],
+  x: toCordinate(3),
+  y: toCordinate(3),
+  body: [{ x: toCordinate(2), y: toCordinate(3) }],
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
@@ -73,7 +73,7 @@ const game = {
   applePos: [7, 7],
 };
 
-function toCord(cord) {
+function toCordinate(cord) {
   return (cord - 1) * map.tSize;
 }
 
@@ -101,29 +101,7 @@ function calcCornerCords(x, y) {
   ];
 }
 
-function renderMap() {
-  for (let c = 0; c < map.cols; c++) {
-    for (let r = 0; r < map.rows; r++) {
-      ctx.drawImage(
-        tileAtlas, // image
-        map.tSize, // source x
-        0, // source y
-        map.tSize, // source width
-        map.tSize, // source height
-        c * map.tSize, // target x
-        r * map.tSize, // target y
-        map.tSize, // target width
-        map.tSize // target height
-      );
-
-      ctx.strokeStyle = 'black';
-      ctx.strokeRect(c * map.tSize, r * map.tSize, map.tSize, map.tSize);
-    }
-  }
-}
-
-function renderSnake() {
-  snake.draw();
+function updateSnakePosition() {
   switch (snake.userInput) {
     case 'ArrowRight':
       snake.x += snake.vx * VELOCITY;
@@ -140,11 +118,6 @@ function renderSnake() {
     default:
       console.log('reached default');
   }
-}
-
-function renderApple(col, row) {
-  ctx.fillStyle = APPLE_COLOR;
-  ctx.fillRect(col * map.tSize, row * map.tSize, map.tSize, map.tSize);
 }
 
 function updateDirection() {
@@ -172,11 +145,56 @@ function updateScore() {
   scoreElement.innerText = game.score;
 }
 
-function checkCollision() {}
 function update() {
   updateDirection();
-  // updateScore();
-  checkCollision();
+  updateSnakePosition();
+  // checkCollision();
+}
+
+function renderMap() {
+  for (let c = 0; c < map.cols; c++) {
+    for (let r = 0; r < map.rows; r++) {
+      ctx.drawImage(
+        tileAtlas, // image
+        map.tSize, // source x
+        0, // source y
+        map.tSize, // source width
+        map.tSize, // source height
+        c * map.tSize, // target x
+        r * map.tSize, // target y
+        map.tSize, // target width
+        map.tSize // target height
+      );
+
+      ctx.strokeStyle = 'black';
+      ctx.strokeRect(c * map.tSize, r * map.tSize, map.tSize, map.tSize);
+    }
+  }
+}
+
+function renderSnake() {
+  snake.draw();
+  // switch (snake.userInput) {
+  //   case 'ArrowRight':
+  //     snake.x += snake.vx * VELOCITY;
+  //     break;
+  //   case 'ArrowLeft':
+  //     snake.x += -1 * snake.vx * VELOCITY;
+  //     break;
+  //   case 'ArrowUp':
+  //     snake.y += -1 * snake.vy * VELOCITY;
+  //     break;
+  //   case 'ArrowDown':
+  //     snake.y += snake.vy * VELOCITY;
+  //     break;
+  //   default:
+  //     console.log('reached default');
+  // }
+}
+
+function renderApple(col, row) {
+  ctx.fillStyle = APPLE_COLOR;
+  ctx.fillRect(col * map.tSize, row * map.tSize, map.tSize, map.tSize);
 }
 
 function render() {
