@@ -109,7 +109,14 @@ function updateSnakePosition() {
   }
 
   for (let i = 1; i < snake.body.length; i++) {
+    /*
+    Isn't working because I currently don't have an initial speed,
+    so cBody.x && .y will never be turnCord.x & .y
+    Should i start game with body moving in direction? probably not. 
+    Need to think of way to update everything nicely
+    */
     const cBody = snake.body[i];
+    console.log({ cBody });
     if (
       cBody.currentDirection !== cBody.nextDirection &&
       cBody.x === cBody.turnCord.x &&
