@@ -1,5 +1,10 @@
 const SNAKE_COLOR = 'rebeccapurple';
 const APPLE_COLOR = '#ff0800';
+const UP = 'ArrowUp';
+const DOWN = 'ArrowDown';
+const LEFT = 'ArrowLeft';
+const RIGHT = 'ArrowRight';
+
 const VELOCITY = 2;
 
 const canvas = document.getElementById('canvas');
@@ -23,8 +28,7 @@ const game = {
 };
 
 const snake = {
-  //Consider abstracting away toCordinate() call from x and y to make more readable
-  bodyCords: [], //bodyCords[0] is HEAD of SNAKE
+  body: [], //body[0] is HEAD of SNAKE
   turnCords: [],
   currentSize: 1,
   tSize: 32,
@@ -34,19 +38,14 @@ const snake = {
   nextInput: '',
 
   draw() {
-    if (this.bodyCords.length === 0) {
+    if (this.body.length === 0) {
       return;
     }
 
-    for (let i = 0; i < this.bodyCords.length; i++) {
+    for (let i = 0; i < this.body.length; i++) {
       ctx.fillStyle = SNAKE_COLOR;
-      ctx.fillRect(
-        this.bodyCords[i].x,
-        this.bodyCords[i].y,
-        this.tSize,
-        this.tSize
-      );
-      this.drawCorners(this.bodyCords[i].x, this.bodyCords[i].y);
+      ctx.fillRect(this.body[i].x, this.body[i].y, this.tSize, this.tSize);
+      this.drawCorners(this.body[i].x, this.body[i].y);
     }
   },
   drawCorners(col, row) {
@@ -58,15 +57,17 @@ const snake = {
     ctx.fillRect(cords[3].x, cords[3].y - 4, 4, 4);
   },
   increaseBody(col, row) {
-    snake.bodyCords.push({
+    this.body.push({
       x: toCordinate(col),
       y: toCordinate(row),
-      turnCord: { x: toCordinate(-1), y: toCordinate(-1) },
+      currentDirection: '',
+      turnCord: {
+        x: toCordinate(-1),
+        y: toCordinate(-1),
+      },
     });
   },
 };
-
-function genSnakeBod(col, row) {}
 
 function toCordinate(cord) {
   return (cord - 1) * game.tileSize;
@@ -86,25 +87,25 @@ function calcCornerCords(x, y) {
 
 function updateSnakePosition() {
   switch (snake.userInput) {
-    case 'ArrowRight':
-      for (let i = 0; i < snake.bodyCords.length; i++) {
-        snake.bodyCords[i].x += snake.vx * VELOCITY;
+    case UP:
+      for (let i = 0; i < snake.body.length; i++) {
+        snake.body[i].y += -1 * snake.vy * VELOCITY;
       }
       break;
-    case 'ArrowLeft':
-      for (let i = 0; i < snake.bodyCords.length; i++) {
-        snake.bodyCords[i].x += -1 * snake.vx * VELOCITY;
+    case DOWN:
+      for (let i = 0; i < snake.body.length; i++) {
+        snake.body[i].y += snake.vy * VELOCITY;
+      }
+    case RIGHT:
+      for (let i = 0; i < snake.body.length; i++) {
+        snake.body[i].x += snake.vx * VELOCITY;
       }
       break;
-    case 'ArrowUp':
-      for (let i = 0; i < snake.bodyCords.length; i++) {
-        snake.bodyCords[i].y += -1 * snake.vy * VELOCITY;
+    case LEFT:
+      for (let i = 0; i < snake.body.length; i++) {
+        snake.body[i].x += -1 * snake.vx * VELOCITY;
       }
       break;
-    case 'ArrowDown':
-      for (let i = 0; i < snake.bodyCords.length; i++) {
-        snake.bodyCords[i].y += snake.vy * VELOCITY;
-      }
       break;
     default:
       console.log('reached default');
@@ -115,7 +116,7 @@ function updateSnakeDirection() {
   if (
     snake.userInput !== snake.nextInput &&
     (snake.nextInput === 'ArrowRight' || snake.nextInput === 'ArrowLeft') &&
-    snake.bodyCords[0].y % 32 === 0
+    snake.body[0].y % 32 === 0
   ) {
     snake.userInput = snake.nextInput;
   }
@@ -123,7 +124,7 @@ function updateSnakeDirection() {
   if (
     snake.userInput !== snake.nextInput &&
     (snake.nextInput === 'ArrowUp' || snake.nextInput === 'ArrowDown') &&
-    snake.bodyCords[0].x % 32 === 0
+    snake.body[0].x % 32 === 0
   ) {
     snake.userInput = snake.nextInput;
   }
