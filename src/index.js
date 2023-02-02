@@ -31,31 +31,28 @@ const map = {
 };
 
 const snake = {
-  x: toCordinate(3),
-  y: toCordinate(3),
-  body: [{ x: toCordinate(2), y: toCordinate(3) }],
+  bodyCords: [{ x: toCordinate(2), y: toCordinate(3) }], //bodyCords[0] is HEAD of SNAKE
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
   xCurrentDirection: true,
-  userInput: '',
-  nextInput: '',
+  userInput: 'ArrowRight',
+  nextInput: 'ArrowRight',
   draw() {
-    ctx.fillStyle = SNAKE_COLOR;
-    ctx.fillRect(this.x, this.y, this.tSize, this.tSize);
-    this.drawCorners(this.x, this.y);
-    this.drawBody();
-  },
-  drawBody() {
-    if (this.body.length === 0) {
+    if (this.bodyCords.length === 0) {
       return;
     }
 
-    for (let i = 0; i < this.body.length; i++) {
+    for (let i = 0; i < this.bodyCords.length; i++) {
       ctx.fillStyle = SNAKE_COLOR;
-      ctx.fillRect(this.body[i].x, this.body[i].y, this.tSize, this.tSize);
-      this.drawCorners(this.body[i].x, this.body[i].y);
+      ctx.fillRect(
+        this.bodyCords[i].x,
+        this.bodyCords[i].y,
+        this.tSize,
+        this.tSize
+      );
+      this.drawCorners(this.bodyCords[i].x, this.bodyCords[i].y);
     }
   },
   drawCorners(x, y) {
@@ -66,6 +63,7 @@ const snake = {
     ctx.fillRect(cords[2].x - 4, cords[2].y - 4, 4, 4);
     ctx.fillRect(cords[3].x, cords[3].y - 4, 4, 4);
   },
+  increaseBody() {},
 };
 
 const game = {
@@ -81,18 +79,6 @@ function calcCornerCords(x, y) {
   //x1 == original point x | x2 == top right | x3 == bottom right | x4 == bottom left
   //y2 == original point y | y2 == top right | y3 == bottom right | y4 == bottom left
 
-  let x1, x2, x3, x4, y1, y2, y3, y4;
-  x1 = x;
-  y1 = y;
-
-  x2 = x + map.tSize;
-  y2 = y;
-
-  x3 = x + map.tSize;
-  y3 = y + map.tSize;
-
-  x4 = x;
-  y4 = y + map.tSize;
   return [
     { x: x, y: y },
     { x: x + map.tSize, y: y },
@@ -104,16 +90,16 @@ function calcCornerCords(x, y) {
 function updateSnakePosition() {
   switch (snake.userInput) {
     case 'ArrowRight':
-      snake.x += snake.vx * VELOCITY;
+      snake.bodyCords[0].x += snake.vx * VELOCITY;
       break;
     case 'ArrowLeft':
-      snake.x += -1 * snake.vx * VELOCITY;
+      snake.bodyCords[0].x += -1 * snake.vx * VELOCITY;
       break;
     case 'ArrowUp':
-      snake.y += -1 * snake.vy * VELOCITY;
+      snake.bodyCords[0].y += -1 * snake.vy * VELOCITY;
       break;
     case 'ArrowDown':
-      snake.y += snake.vy * VELOCITY;
+      snake.bodyCords[0].y += snake.vy * VELOCITY;
       break;
     default:
       console.log('reached default');
@@ -124,7 +110,7 @@ function updateDirection() {
   if (
     snake.userInput !== snake.nextInput &&
     (snake.nextInput === 'ArrowRight' || snake.nextInput === 'ArrowLeft') &&
-    snake.y % 32 === 0
+    snake.bodyCords[0].y % 32 === 0
   ) {
     snake.userInput = snake.nextInput;
   }
@@ -132,7 +118,7 @@ function updateDirection() {
   if (
     snake.userInput !== snake.nextInput &&
     (snake.nextInput === 'ArrowUp' || snake.nextInput === 'ArrowDown') &&
-    snake.x % 32 === 0
+    snake.bodyCords[0].x % 32 === 0
   ) {
     snake.userInput = snake.nextInput;
   }
@@ -145,56 +131,67 @@ function updateScore() {
   scoreElement.innerText = game.score;
 }
 
-function update() {
-  updateDirection();
-  updateSnakePosition();
-  // checkCollision();
-}
-
 function renderMap() {
-  for (let c = 0; c < map.cols; c++) {
-    for (let r = 0; r < map.rows; r++) {
-      ctx.drawImage(
-        tileAtlas, // image
-        map.tSize, // source x
-        0, // source y
-        map.tSize, // source width
-        map.tSize, // source height
-        c * map.tSize, // target x
-        r * map.tSize, // target y
-        map.tSize, // target width
-        map.tSize // target height
-      );
-
-      ctx.strokeStyle = 'black';
-      ctx.strokeRect(c * map.tSize, r * map.tSize, map.tSize, map.tSize);
+  for (let col = 0; col < map.cols + 1; col++) {
+    for (let row = 0; row < map.rows + 1; row++) {
+      if (col % 2 === 0 && row % 2 === 0) {
+        ctx.fillStyle = '#70c61d';
+        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.strokeStyle = 'black';
+        // ctx.strokeRect(
+        //   toCordinate(col),
+        //   toCordinate(row),
+        //   map.tSize,
+        //   map.tSize
+        // );
+      } else if (col % 2 === 0 && row % 2 !== 0) {
+        ctx.fillStyle = '#5aaf06';
+        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.strokeStyle = 'black';
+        // ctx.strokeRect(
+        //   toCordinate(col),
+        //   toCordinate(row),
+        //   map.tSize,
+        //   map.tSize
+        // );
+      } else if (col % 2 !== 0 && row % 2 === 0) {
+        ctx.fillStyle = '#5aaf06';
+        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.strokeStyle = 'black';
+        // ctx.strokeRect(
+        //   toCordinate(col),
+        //   toCordinate(row),
+        //   map.tSize,
+        //   map.tSize
+        // );
+      } else {
+        ctx.fillStyle = '#70c61d';
+        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.strokeStyle = 'black';
+        // ctx.strokeRect(
+        //   toCordinate(col),
+        //   toCordinate(row),
+        //   map.tSize,
+        //   map.tSize
+        // );
+      }
     }
   }
 }
 
 function renderSnake() {
   snake.draw();
-  // switch (snake.userInput) {
-  //   case 'ArrowRight':
-  //     snake.x += snake.vx * VELOCITY;
-  //     break;
-  //   case 'ArrowLeft':
-  //     snake.x += -1 * snake.vx * VELOCITY;
-  //     break;
-  //   case 'ArrowUp':
-  //     snake.y += -1 * snake.vy * VELOCITY;
-  //     break;
-  //   case 'ArrowDown':
-  //     snake.y += snake.vy * VELOCITY;
-  //     break;
-  //   default:
-  //     console.log('reached default');
-  // }
 }
 
 function renderApple(col, row) {
   ctx.fillStyle = APPLE_COLOR;
   ctx.fillRect(col * map.tSize, row * map.tSize, map.tSize, map.tSize);
+}
+
+function update() {
+  updateDirection();
+  updateSnakePosition();
+  // checkCollision();
 }
 
 function render() {
