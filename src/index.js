@@ -1,6 +1,6 @@
 const SNAKE_COLOR = 'rebeccapurple';
 const APPLE_COLOR = '#ff0800';
-const VELOCITY = 2;
+const VELOCITY = 1;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -12,33 +12,18 @@ const map = {
   cols: 16,
   rows: 16,
   tSize: 32,
-  tiles: [
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1,
-  ],
-  getTile(col, row) {
-    return this.tiles[row * map.cols + col];
-  },
 };
 
 const snake = {
-  bodyCords: [{ x: toCordinate(2), y: toCordinate(3) }], //bodyCords[0] is HEAD of SNAKE
+  //Consider abstracting away toCordinate() call from x and y to make more readable
+  bodyCords: [{ x: toCordinate(2), y: toCordinate(3), currentDirection: '' }], //bodyCords[0] is HEAD of SNAKE
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
   xCurrentDirection: true,
-  userInput: 'ArrowRight',
-  nextInput: 'ArrowRight',
+  userInput: '',
+  nextInput: '',
   draw() {
     if (this.bodyCords.length === 0) {
       return;
@@ -106,7 +91,7 @@ function updateSnakePosition() {
   }
 }
 
-function updateDirection() {
+function updateSnakeDirection() {
   if (
     snake.userInput !== snake.nextInput &&
     (snake.nextInput === 'ArrowRight' || snake.nextInput === 'ArrowLeft') &&
@@ -189,9 +174,8 @@ function renderApple(col, row) {
 }
 
 function update() {
-  updateDirection();
+  updateSnakeDirection();
   updateSnakePosition();
-  // checkCollision();
 }
 
 function render() {
