@@ -1,6 +1,6 @@
 const SNAKE_COLOR = 'rebeccapurple';
 const APPLE_COLOR = '#ff0800';
-const VELOCITY = 1;
+const VELOCITY = 2;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -14,16 +14,25 @@ const map = {
   tSize: 32,
 };
 
+const game = {
+  score: 0,
+  applePos: [7, 7],
+  cols: 16,
+  rows: 16,
+  tileSize: 32,
+};
+
 const snake = {
   //Consider abstracting away toCordinate() call from x and y to make more readable
-  bodyCords: [{ x: toCordinate(2), y: toCordinate(3), currentDirection: '' }], //bodyCords[0] is HEAD of SNAKE
+  bodyCords: [], //bodyCords[0] is HEAD of SNAKE
+  turnCords: [],
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
-  xCurrentDirection: true,
   userInput: '',
   nextInput: '',
+
   draw() {
     if (this.bodyCords.length === 0) {
       return;
@@ -40,24 +49,27 @@ const snake = {
       this.drawCorners(this.bodyCords[i].x, this.bodyCords[i].y);
     }
   },
-  drawCorners(x, y) {
-    cords = calcCornerCords(x, y);
+  drawCorners(col, row) {
+    cords = calcCornerCords(col, row);
     ctx.fillStyle = 'white';
     ctx.fillRect(cords[0].x, cords[0].y, 4, 4);
     ctx.fillRect(cords[1].x - 4, cords[1].y, 4, 4);
     ctx.fillRect(cords[2].x - 4, cords[2].y - 4, 4, 4);
     ctx.fillRect(cords[3].x, cords[3].y - 4, 4, 4);
   },
-  increaseBody() {},
+  increaseBody(col, row) {
+    snake.bodyCords.push({
+      x: toCordinate(col),
+      y: toCordinate(row),
+      turnCord: { x: toCordinate(-1), y: toCordinate(-1) },
+    });
+  },
 };
 
-const game = {
-  score: 0,
-  applePos: [7, 7],
-};
+function genSnakeBod(col, row) {}
 
 function toCordinate(cord) {
-  return (cord - 1) * map.tSize;
+  return (cord - 1) * game.tileSize;
 }
 
 function calcCornerCords(x, y) {
@@ -66,25 +78,33 @@ function calcCornerCords(x, y) {
 
   return [
     { x: x, y: y },
-    { x: x + map.tSize, y: y },
-    { x: x + map.tSize, y: y + map.tSize },
-    { x: x, y: y + map.tSize },
+    { x: x + game.tileSize, y: y },
+    { x: x + game.tileSize, y: y + game.tileSize },
+    { x: x, y: y + game.tileSize },
   ];
 }
 
 function updateSnakePosition() {
   switch (snake.userInput) {
     case 'ArrowRight':
-      snake.bodyCords[0].x += snake.vx * VELOCITY;
+      for (let i = 0; i < snake.bodyCords.length; i++) {
+        snake.bodyCords[i].x += snake.vx * VELOCITY;
+      }
       break;
     case 'ArrowLeft':
-      snake.bodyCords[0].x += -1 * snake.vx * VELOCITY;
+      for (let i = 0; i < snake.bodyCords.length; i++) {
+        snake.bodyCords[i].x += -1 * snake.vx * VELOCITY;
+      }
       break;
     case 'ArrowUp':
-      snake.bodyCords[0].y += -1 * snake.vy * VELOCITY;
+      for (let i = 0; i < snake.bodyCords.length; i++) {
+        snake.bodyCords[i].y += -1 * snake.vy * VELOCITY;
+      }
       break;
     case 'ArrowDown':
-      snake.bodyCords[0].y += snake.vy * VELOCITY;
+      for (let i = 0; i < snake.bodyCords.length; i++) {
+        snake.bodyCords[i].y += snake.vy * VELOCITY;
+      }
       break;
     default:
       console.log('reached default');
@@ -117,47 +137,67 @@ function updateScore() {
 }
 
 function renderMap() {
-  for (let col = 0; col < map.cols + 1; col++) {
-    for (let row = 0; row < map.rows + 1; row++) {
+  for (let col = 0; col < game.cols + 1; col++) {
+    for (let row = 0; row < game.rows + 1; row++) {
       if (col % 2 === 0 && row % 2 === 0) {
         ctx.fillStyle = '#70c61d';
-        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.fillRect(
+          toCordinate(col),
+          toCordinate(row),
+          game.tileSize,
+          game.tileSize
+        );
         ctx.strokeStyle = 'black';
         // ctx.strokeRect(
         //   toCordinate(col),
         //   toCordinate(row),
-        //   map.tSize,
-        //   map.tSize
+        //   game.tileSize,
+        //   game.tileSize
         // );
       } else if (col % 2 === 0 && row % 2 !== 0) {
         ctx.fillStyle = '#5aaf06';
-        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.fillRect(
+          toCordinate(col),
+          toCordinate(row),
+          game.tileSize,
+          game.tileSize
+        );
         ctx.strokeStyle = 'black';
         // ctx.strokeRect(
         //   toCordinate(col),
         //   toCordinate(row),
-        //   map.tSize,
-        //   map.tSize
+        //   game.tileSize,
+        //   game.tileSize
         // );
       } else if (col % 2 !== 0 && row % 2 === 0) {
         ctx.fillStyle = '#5aaf06';
-        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.fillRect(
+          toCordinate(col),
+          toCordinate(row),
+          game.tileSize,
+          game.tileSize
+        );
         ctx.strokeStyle = 'black';
         // ctx.strokeRect(
         //   toCordinate(col),
         //   toCordinate(row),
-        //   map.tSize,
-        //   map.tSize
+        //   game.tileSize,
+        //   game.tileSize
         // );
       } else {
         ctx.fillStyle = '#70c61d';
-        ctx.fillRect(toCordinate(col), toCordinate(row), map.tSize, map.tSize);
+        ctx.fillRect(
+          toCordinate(col),
+          toCordinate(row),
+          game.tileSize,
+          game.tileSize
+        );
         ctx.strokeStyle = 'black';
         // ctx.strokeRect(
         //   toCordinate(col),
         //   toCordinate(row),
-        //   map.tSize,
-        //   map.tSize
+        //   game.tileSize,
+        //   game.tileSize
         // );
       }
     }
@@ -170,7 +210,12 @@ function renderSnake() {
 
 function renderApple(col, row) {
   ctx.fillStyle = APPLE_COLOR;
-  ctx.fillRect(col * map.tSize, row * map.tSize, map.tSize, map.tSize);
+  ctx.fillRect(
+    col * game.tileSize,
+    row * game.tileSize,
+    game.tileSize,
+    game.tileSize
+  );
 }
 
 function update() {
@@ -209,5 +254,8 @@ function handleKeyboardInput() {
   }
 
   handleKeyboardInput();
+  snake.increaseBody(3, 2);
+  snake.increaseBody(2, 2);
+  snake.increaseBody(1, 2);
   main();
 })();
