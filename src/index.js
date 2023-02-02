@@ -61,6 +61,7 @@ const snake = {
       x: toCordinate(col),
       y: toCordinate(row),
       currentDirection: '',
+      nextDirection: '',
       turnCord: {
         x: toCordinate(-1),
         y: toCordinate(-1),
@@ -86,26 +87,19 @@ function calcCornerCords(x, y) {
 }
 
 function updateSnakePosition() {
+  //Updating direction for head should be immediate
   switch (snake.userInput) {
     case UP:
-      for (let i = 0; i < snake.body.length; i++) {
-        snake.body[i].y += -1 * snake.vy * VELOCITY;
-      }
+      snake.body[0].y += -1 * snake.vy * VELOCITY;
       break;
     case DOWN:
-      for (let i = 0; i < snake.body.length; i++) {
-        snake.body[i].y += snake.vy * VELOCITY;
-      }
+      snake.body[0].y += snake.vy * VELOCITY;
+      break;
     case RIGHT:
-      for (let i = 0; i < snake.body.length; i++) {
-        snake.body[i].x += snake.vx * VELOCITY;
-      }
+      snake.body[0].x += snake.vx * VELOCITY;
       break;
     case LEFT:
-      for (let i = 0; i < snake.body.length; i++) {
-        snake.body[i].x += -1 * snake.vx * VELOCITY;
-      }
-      break;
+      snake.body[0].x += -1 * snake.vx * VELOCITY;
       break;
     default:
       console.log('reached default');
