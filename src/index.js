@@ -29,7 +29,6 @@ const game = {
 
 const snake = {
   body: [], //body[0] is HEAD of SNAKE
-  turnCords: [],
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
@@ -91,18 +90,56 @@ function updateSnakePosition() {
   switch (snake.userInput) {
     case UP:
       snake.body[0].y += -1 * snake.vy * VELOCITY;
+      snake.body[1].nextDirection = UP;
       break;
     case DOWN:
       snake.body[0].y += snake.vy * VELOCITY;
+      snake.body[1].nextDirection = DOWN;
       break;
     case RIGHT:
       snake.body[0].x += snake.vx * VELOCITY;
+      snake.body[1].nextDirection = RIGHT;
       break;
     case LEFT:
       snake.body[0].x += -1 * snake.vx * VELOCITY;
+      snake.body[1].nextDirection = LEFT;
       break;
     default:
       console.log('reached default');
+  }
+
+  for (let i = 1; i < snake.body.length; i++) {
+    const cBody = snake.body[i];
+    if (
+      cBody.currentDirection !== cBody.nextDirection &&
+      cBody.x === cBody.turnCord.x &&
+      cBody.y === cBody.turnCords.y
+    ) {
+      console.log('hit switch');
+      cBody.currentDirection = cBody.nextDirection;
+    }
+
+    switch (cBody.currentDirection) {
+      case UP:
+        console.log('hit up');
+        cBody.y += -1 * VELOCITY;
+        break;
+      case DOWN:
+        console.log('hit down');
+        cBody.y += VELOCITY;
+        break;
+      case RIGHT:
+        console.log('hit right');
+        cBody.x += VELOCITY;
+        break;
+      case LEFT:
+        console.log('hit left');
+        cBody.x += -1 * VELOCITY;
+        break;
+      default:
+        console.log('reached default');
+    }
+    snake.body[i] = cBody;
   }
 }
 
@@ -112,6 +149,7 @@ function updateSnakeDirection() {
     (snake.nextInput === 'ArrowRight' || snake.nextInput === 'ArrowLeft') &&
     snake.body[0].y % 32 === 0
   ) {
+    snake.body[1].turnCord = { x: snake.body[0].x, y: snake.body[0].y }; //saves turn cords and starts turn chain for snake
     snake.userInput = snake.nextInput;
   }
 
@@ -120,6 +158,7 @@ function updateSnakeDirection() {
     (snake.nextInput === 'ArrowUp' || snake.nextInput === 'ArrowDown') &&
     snake.body[0].x % 32 === 0
   ) {
+    snake.body[1].turnCord = { x: snake.body[0].x, y: snake.body[0].y }; //saves turn cords and starts turn chain for snake
     snake.userInput = snake.nextInput;
   }
 }
@@ -143,12 +182,6 @@ function renderMap() {
           game.tileSize
         );
         ctx.strokeStyle = 'black';
-        // ctx.strokeRect(
-        //   toCordinate(col),
-        //   toCordinate(row),
-        //   game.tileSize,
-        //   game.tileSize
-        // );
       } else if (col % 2 === 0 && row % 2 !== 0) {
         ctx.fillStyle = '#5aaf06';
         ctx.fillRect(
@@ -158,12 +191,6 @@ function renderMap() {
           game.tileSize
         );
         ctx.strokeStyle = 'black';
-        // ctx.strokeRect(
-        //   toCordinate(col),
-        //   toCordinate(row),
-        //   game.tileSize,
-        //   game.tileSize
-        // );
       } else if (col % 2 !== 0 && row % 2 === 0) {
         ctx.fillStyle = '#5aaf06';
         ctx.fillRect(
@@ -173,12 +200,6 @@ function renderMap() {
           game.tileSize
         );
         ctx.strokeStyle = 'black';
-        // ctx.strokeRect(
-        //   toCordinate(col),
-        //   toCordinate(row),
-        //   game.tileSize,
-        //   game.tileSize
-        // );
       } else {
         ctx.fillStyle = '#70c61d';
         ctx.fillRect(
@@ -188,12 +209,6 @@ function renderMap() {
           game.tileSize
         );
         ctx.strokeStyle = 'black';
-        // ctx.strokeRect(
-        //   toCordinate(col),
-        //   toCordinate(row),
-        //   game.tileSize,
-        //   game.tileSize
-        // );
       }
     }
   }
