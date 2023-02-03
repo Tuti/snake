@@ -29,6 +29,7 @@ const game = {
 
 const snake = {
   body: [], //body[0] is HEAD of SNAKE
+  turns: [],
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
@@ -59,13 +60,16 @@ const snake = {
     this.body.push({
       x: toCordinate(col),
       y: toCordinate(row),
-      currentDirection: '',
+      direction: '',
       nextDirection: '',
       turnCord: {
         x: toCordinate(-1),
         y: toCordinate(-1),
       },
     });
+  },
+  addTurn(x, y, direction) {
+    this.turns.push({ x: x, y: y, currentIndex: 0, direction: direction });
   },
 };
 
@@ -85,79 +89,91 @@ function calcCornerCords(x, y) {
   ];
 }
 
-function updateSnakePosition() {
-  //Updating direction for head should be immediate
-  switch (snake.userInput) {
-    case UP:
-      snake.body[0].y += -1 * snake.vy * VELOCITY;
-      snake.body[1].nextDirection = UP;
-      break;
-    case DOWN:
-      snake.body[0].y += snake.vy * VELOCITY;
-      snake.body[1].nextDirection = DOWN;
-      break;
-    case RIGHT:
-      snake.body[0].x += snake.vx * VELOCITY;
-      snake.body[1].nextDirection = RIGHT;
-      break;
-    case LEFT:
-      snake.body[0].x += -1 * snake.vx * VELOCITY;
-      snake.body[1].nextDirection = LEFT;
-      break;
-    default:
-      console.log('reached default');
-  }
+function updateSnakePosition() {}
 
-  for (let i = 1; i < snake.body.length; i++) {
-    /*
-    Isn't working because I currently don't have an initial speed,
-    so cBody.x && .y will never be turnCord.x & .y
-    Should i start game with body moving in direction? probably not. 
-    Need to think of way to update everything nicely
-    */
-    const cBody = snake.body[i];
-    console.log({ cBody });
-    if (
-      cBody.currentDirection !== cBody.nextDirection &&
-      cBody.x === cBody.turnCord.x &&
-      cBody.y === cBody.turnCords.y
-    ) {
-      console.log('hit switch');
-      cBody.currentDirection = cBody.nextDirection;
-    }
+// function updateSnakePositionn() {
+//   //Updating direction for head should be immediate
+//   switch (snake.userInput) {
+//     case UP:
+//       snake.body[0].y += -1 * snake.vy * VELOCITY;
+//       snake.body[1].nextDirection = UP;
+//       break;
+//     case DOWN:
+//       snake.body[0].y += snake.vy * VELOCITY;
+//       snake.body[1].nextDirection = DOWN;
+//       break;
+//     case RIGHT:
+//       snake.body[0].x += snake.vx * VELOCITY;
+//       snake.body[1].nextDirection = RIGHT;
+//       break;
+//     case LEFT:
+//       snake.body[0].x += -1 * snake.vx * VELOCITY;
+//       snake.body[1].nextDirection = LEFT;
+//       break;
+//     default:
+//       console.log('reached default');
+//   }
 
-    switch (cBody.currentDirection) {
-      case UP:
-        console.log('hit up');
-        cBody.y += -1 * VELOCITY;
-        break;
-      case DOWN:
-        console.log('hit down');
-        cBody.y += VELOCITY;
-        break;
-      case RIGHT:
-        console.log('hit right');
-        cBody.x += VELOCITY;
-        break;
-      case LEFT:
-        console.log('hit left');
-        cBody.x += -1 * VELOCITY;
-        break;
-      default:
-        console.log('reached default');
-    }
-    snake.body[i] = cBody;
-  }
-}
+//   for (let i = 1; i < snake.body.length; i++) {
+//     /*
+//     Isn't working because I currently don't have an initial speed,
+//     so cBody.x && .y will never be turnCord.x & .y
+//     Should i start game with body moving in direction? probably not.
+//     Need to think of way to update everything nicely
+//     */
+//     const cBody = snake.body[i];
+//     console.log({ cBody });
+//     if (
+//       cBody.currentDirection !== cBody.nextDirection &&
+//       cBody.x === cBody.turnCord.x &&
+//       cBody.y === cBody.turnCords.y
+//     ) {
+//       console.log('hit switch');
+//       cBody.currentDirection = cBody.nextDirection;
+//     }
+
+//     switch (cBody.currentDirection) {
+//       case UP:
+//         console.log('hit up');
+//         cBody.y += -1 * VELOCITY;
+//         break;
+//       case DOWN:
+//         console.log('hit down');
+//         cBody.y += VELOCITY;
+//         break;
+//       case RIGHT:
+//         console.log('hit right');
+//         cBody.x += VELOCITY;
+//         break;
+//       case LEFT:
+//         console.log('hit left');
+//         cBody.x += -1 * VELOCITY;
+//         break;
+//       default:
+//         console.log('reached default');
+//     }
+//     snake.body[i] = cBody;
+//   }
+// }
 
 function updateSnakeDirection() {
+  /* 
+    each turn, save turn cords and create new object
+    with necessary info, current index and each update
+    check if next body part is at cord so it can start turn
+    if not skip until next update. on arrival of cord,
+    update to new direction and update current index
+    continue until current index for turn > size of snake
+    should be an array of turns that we are constantly working thru,
+    only should be checking the first turn in the array (like a queue)  
+  */
   if (
     snake.userInput !== snake.nextInput &&
     (snake.nextInput === 'ArrowRight' || snake.nextInput === 'ArrowLeft') &&
     snake.body[0].y % 32 === 0
   ) {
-    snake.body[1].turnCord = { x: snake.body[0].x, y: snake.body[0].y }; //saves turn cords and starts turn chain for snake
     snake.userInput = snake.nextInput;
+    snake.addTurn(snake.body[0].x, snake.body[0].y, snake.nextInput);
   }
 
   if (
@@ -165,8 +181,8 @@ function updateSnakeDirection() {
     (snake.nextInput === 'ArrowUp' || snake.nextInput === 'ArrowDown') &&
     snake.body[0].x % 32 === 0
   ) {
-    snake.body[1].turnCord = { x: snake.body[0].x, y: snake.body[0].y }; //saves turn cords and starts turn chain for snake
     snake.userInput = snake.nextInput;
+    snake.addTurn(snake.body[0].x, snake.body[0].y, snake.nextInput);
   }
 }
 
