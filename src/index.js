@@ -56,13 +56,30 @@ const snake = {
     ctx.fillRect(cords[2].x - 4, cords[2].y - 4, 4, 4);
     ctx.fillRect(cords[3].x, cords[3].y - 4, 4, 4);
   },
-  increaseBody(col, row) {
-    this.body.push({
-      x: toCordinate(col),
-      y: toCordinate(row),
-      direction: '',
-      nextDirection: '',
-    });
+  increaseBody(col, row, direction = '') {
+    if (direction === '') {
+      console.log('hit if increasebody');
+      this.body.push({
+        x: toCordinate(col),
+        y: toCordinate(row),
+        direction:
+          this.body.length > 0
+            ? this.body[this.body.length - 1].direction
+            : direction,
+        nextDirection:
+          this.body.length > 0
+            ? this.body[this.body.length - 1].direction
+            : direction,
+      });
+    } else {
+      console.log('hit else increasebody');
+      this.body.push({
+        x: toCordinate(col),
+        y: toCordinate(row),
+        direction: direction,
+        nextDirection: direction,
+      });
+    }
   },
   addTurn(x, y, direction) {
     this.turns.push({ x: x, y: y, currentIndex: 0, direction: direction });
@@ -129,7 +146,7 @@ function updateBody() {
         cbody.x += -1 * VELOCITY;
         break;
       default:
-        console.log('should not have hit');
+        console.log('should not have hit body');
         break;
     }
     snake.body[i] = cbody;
@@ -351,7 +368,7 @@ function handleKeyboardInput() {
   }
 
   handleKeyboardInput();
-  snake.increaseBody(3, 2);
+  snake.increaseBody(3, 2, RIGHT);
   snake.increaseBody(2, 2);
   snake.increaseBody(1, 2);
   main();
