@@ -5,7 +5,7 @@ const DOWN = 'ArrowDown';
 const LEFT = 'ArrowLeft';
 const RIGHT = 'ArrowRight';
 
-const VELOCITY = 2;
+const VELOCITY = 1;
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -34,8 +34,8 @@ const snake = {
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
   vy: 1, //determines direction | pos == down  | neg == up
-  userInput: '',
-  nextInput: '',
+  userInput: RIGHT,
+  nextInput: RIGHT,
 
   draw() {
     if (this.body.length === 0) {
@@ -62,14 +62,17 @@ const snake = {
       y: toCordinate(row),
       direction: '',
       nextDirection: '',
-      turnCord: {
-        x: toCordinate(-1),
-        y: toCordinate(-1),
-      },
     });
   },
   addTurn(x, y, direction) {
     this.turns.push({ x: x, y: y, currentIndex: 0, direction: direction });
+  },
+  increaseTurnIndex() {
+    if (this.turns[0].currentIndex > this.body.length) {
+      this.turns.splice(0, 1);
+    } else {
+      this.turns[0].currentIndex++;
+    }
   },
 };
 
@@ -89,7 +92,53 @@ function calcCornerCords(x, y) {
   ];
 }
 
-function updateSnakePosition() {}
+function updateHead() {
+  switch (snake.userInput) {
+    case UP:
+      snake.body[0].y += -1 * snake.vy * VELOCITY;
+      break;
+    case DOWN:
+      snake.body[0].y += VELOCITY;
+      break;
+    case RIGHT:
+      snake.body[0].x += VELOCITY;
+      break;
+    case LEFT:
+      snake.body[0].x += -1 * VELOCITY;
+      break;
+    default:
+      console.log('should not have hit');
+      break;
+  }
+}
+
+function updateBody() {
+  for (let i = 1; i < snake.body.length; i++) {
+    const cbody = snake.body[i];
+    switch (cbody.direction) {
+      case UP:
+        cbody.y += -1 * snake.vy * VELOCITY;
+        break;
+      case DOWN:
+        cbody.y += VELOCITY;
+        break;
+      case RIGHT:
+        cbody.x += VELOCITY;
+        break;
+      case LEFT:
+        cbody.x += -1 * VELOCITY;
+        break;
+      default:
+        console.log('should not have hit');
+        break;
+    }
+    snake.body[i] = cbody;
+  }
+}
+function updateSnakePosition() {
+  updateHead();
+  updateBody();
+}
 
 // function updateSnakePositionn() {
 //   //Updating direction for head should be immediate
@@ -160,6 +209,7 @@ function updateSnakeDirection() {
   /* 
     each turn, save turn cords and create new object
     with necessary info, current index and each update
+
     check if next body part is at cord so it can start turn
     if not skip until next update. on arrival of cord,
     update to new direction and update current index
@@ -174,6 +224,8 @@ function updateSnakeDirection() {
   ) {
     snake.userInput = snake.nextInput;
     snake.addTurn(snake.body[0].x, snake.body[0].y, snake.nextInput);
+    const turns = snake.turns;
+    console.log({ turns });
   }
 
   if (
@@ -183,6 +235,18 @@ function updateSnakeDirection() {
   ) {
     snake.userInput = snake.nextInput;
     snake.addTurn(snake.body[0].x, snake.body[0].y, snake.nextInput);
+    const turns = snake.turns;
+    console.log({ turns });
+  }
+
+  if (
+    snake.turns.length > 0 &&
+    snake.body[snake.turns[0].currentIndex].x === snake.turns.x &&
+    snake.body[snake.turns[0].currentIndex].y === snake.turns.y
+  ) {
+    snake.body[snake.turns[0].currentIndex].nextDirection =
+      snake.turns[0].direction;
+    snake.increaseTurnIndex();
   }
 }
 
