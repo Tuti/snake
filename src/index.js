@@ -59,7 +59,6 @@ const snake = {
   },
   increaseBody(col, row, direction = '') {
     if (direction === '') {
-      console.log('hit if increasebody');
       this.body.push({
         x: toCordinate(col),
         y: toCordinate(row),
@@ -73,7 +72,6 @@ const snake = {
             : direction,
       });
     } else {
-      console.log('hit else increasebody');
       this.body.push({
         x: toCordinate(col),
         y: toCordinate(row),
@@ -91,7 +89,6 @@ const snake = {
       this.turnIndex = 0;
     } else {
       this.turnIndex += 1;
-      console.log('increased turn index');
     }
   },
 };
@@ -267,19 +264,18 @@ function updateSnakeDirection() {
     snake.body[snake.turnIndex].x === snake.turns[0].x &&
     snake.body[snake.turnIndex].y === snake.turns[0].y
   ) {
-    console.log('x and y match');
     snake.body[snake.turnIndex].direction = snake.turns[0].direction;
     snake.increaseTurnIndex();
   }
 
   if (snake.turnIndex >= snake.body.length) {
-    console.log('kalsdjflkasdjfl');
+    console.log('turn index >= body.length');
     snake.increaseTurnIndex();
   }
   let tIndex = snake.turnIndex;
   let sBody = snake.body.length;
 
-  console.log({ tIndex, sBody });
+  // console.log({ tIndex, sBody });
 }
 
 function updateScore() {
