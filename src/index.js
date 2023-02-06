@@ -85,10 +85,19 @@ const snake = {
     this.turns.push({ x: x, y: y, currentIndex: 0, direction: direction });
   },
   increaseTurnIndex() {
-    if (this.turns[0].currentIndex > this.body.length) {
+    let index;
+    if (this.turns[0].currentIndex - 1 > this.body.length) {
       this.turns.splice(0, 1);
+      const turnss = this.turns;
+      console.log({ turnss });
+      index = this.turns[0].currentIndex;
+      console.log('turn index spliced' + index);
     } else {
       this.turns[0].currentIndex++;
+      index = this.turns[0].currentIndex;
+      let turns = this.turns;
+      console.log('turn index increased');
+      console.log({ turns });
     }
   },
 };
@@ -256,14 +265,27 @@ function updateSnakeDirection() {
     console.log({ turns });
   }
 
+  for (let i = 0; i < snake.body.length; i++) {}
+
   if (
     snake.turns.length > 0 &&
-    snake.body[snake.turns[0].currentIndex].x === snake.turns.x &&
-    snake.body[snake.turns[0].currentIndex].y === snake.turns.y
+    snake.turns[0].currentIndex < snake.body.length &&
+    snake.body[snake.turns[0].currentIndex].x === snake.turns[0].x &&
+    snake.body[snake.turns[0].currentIndex].y === snake.turns[0].y
   ) {
-    snake.body[snake.turns[0].currentIndex].nextDirection =
+    // const index = snake.turns[0].currentIndex;
+    // console.log({ index });
+    const turnsIndex = snake.turns[0].currentIndex;
+    const xBody = snake.body[turnsIndex].x;
+    const yBody = snake.body[turnsIndex].y;
+    const xTurn = snake.turns[0].x;
+    const yTurn = snake.turns[0].y;
+
+    console.log('x and y match');
+    snake.body[snake.turns[0].currentIndex].direction =
       snake.turns[0].direction;
     snake.increaseTurnIndex();
+    console.log({ turnsIndex, xBody, yBody, xTurn, yTurn });
   }
 }
 
