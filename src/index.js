@@ -30,6 +30,7 @@ const game = {
 const snake = {
   body: [], //body[0] is HEAD of SNAKE
   turns: [],
+  turnIndex: 0,
   currentSize: 1,
   tSize: 32,
   vx: 1, //determines direction | pos == right | neg == left
@@ -85,19 +86,12 @@ const snake = {
     this.turns.push({ x: x, y: y, currentIndex: 0, direction: direction });
   },
   increaseTurnIndex() {
-    let index;
-    if (this.turns[0].currentIndex - 1 > this.body.length) {
+    if (this.turnIndex > this.body.length) {
       this.turns.splice(0, 1);
-      const turnss = this.turns;
-      console.log({ turnss });
-      index = this.turns[0].currentIndex;
-      console.log('turn index spliced' + index);
+      this.turnIndex = 0;
     } else {
-      this.turns[0].currentIndex++;
-      index = this.turns[0].currentIndex;
-      let turns = this.turns;
-      console.log('turn index increased');
-      console.log({ turns });
+      this.turnIndex += 1;
+      console.log('increased turn index');
     }
   },
 };
@@ -269,24 +263,23 @@ function updateSnakeDirection() {
 
   if (
     snake.turns.length > 0 &&
-    snake.turns[0].currentIndex < snake.body.length &&
-    snake.body[snake.turns[0].currentIndex].x === snake.turns[0].x &&
-    snake.body[snake.turns[0].currentIndex].y === snake.turns[0].y
+    snake.turnIndex < snake.body.length &&
+    snake.body[snake.turnIndex].x === snake.turns[0].x &&
+    snake.body[snake.turnIndex].y === snake.turns[0].y
   ) {
-    // const index = snake.turns[0].currentIndex;
-    // console.log({ index });
-    const turnsIndex = snake.turns[0].currentIndex;
-    const xBody = snake.body[turnsIndex].x;
-    const yBody = snake.body[turnsIndex].y;
-    const xTurn = snake.turns[0].x;
-    const yTurn = snake.turns[0].y;
-
     console.log('x and y match');
-    snake.body[snake.turns[0].currentIndex].direction =
-      snake.turns[0].direction;
+    snake.body[snake.turnIndex].direction = snake.turns[0].direction;
     snake.increaseTurnIndex();
-    console.log({ turnsIndex, xBody, yBody, xTurn, yTurn });
   }
+
+  if (snake.turnIndex >= snake.body.length) {
+    console.log('kalsdjflkasdjfl');
+    snake.increaseTurnIndex();
+  }
+  let tIndex = snake.turnIndex;
+  let sBody = snake.body.length;
+
+  console.log({ tIndex, sBody });
 }
 
 function updateScore() {
