@@ -30,6 +30,7 @@ const game = {
 const snake = {
   body: [], //body[0] is HEAD of SNAKE
   turns: [],
+  currentTurn: 0,
   turnIndex: 0,
   currentSize: 1,
   tSize: 32,
@@ -85,7 +86,8 @@ const snake = {
   },
   increaseTurnIndex() {
     if (this.turnIndex > this.body.length) {
-      this.turns.splice(0, 1);
+      // this.turns.splice(0, 1);
+      this.currentTurn += 1;
       this.turnIndex = 0;
     } else {
       this.turnIndex += 1;
@@ -153,74 +155,46 @@ function updateBody() {
   }
 }
 function updateSnakePosition() {
-  updateHead();
-  updateBody();
+  switch (snake.userInput) {
+    case UP:
+      snake.body[0].y += -1 * snake.vy * VELOCITY;
+      break;
+    case DOWN:
+      snake.body[0].y += VELOCITY;
+      break;
+    case RIGHT:
+      snake.body[0].x += VELOCITY;
+      break;
+    case LEFT:
+      snake.body[0].x += -1 * VELOCITY;
+      break;
+    default:
+      console.log('should not have hit');
+      break;
+  }
+
+  for (let i = 1; i < snake.body.length; i++) {
+    const cbody = snake.body[i];
+    switch (cbody.direction) {
+      case UP:
+        cbody.y += -1 * snake.vy * VELOCITY;
+        break;
+      case DOWN:
+        cbody.y += VELOCITY;
+        break;
+      case RIGHT:
+        cbody.x += VELOCITY;
+        break;
+      case LEFT:
+        cbody.x += -1 * VELOCITY;
+        break;
+      default:
+        console.log('should not have hit body');
+        break;
+    }
+    snake.body[i] = cbody;
+  }
 }
-
-// function updateSnakePositionn() {
-//   //Updating direction for head should be immediate
-//   switch (snake.userInput) {
-//     case UP:
-//       snake.body[0].y += -1 * snake.vy * VELOCITY;
-//       snake.body[1].nextDirection = UP;
-//       break;
-//     case DOWN:
-//       snake.body[0].y += snake.vy * VELOCITY;
-//       snake.body[1].nextDirection = DOWN;
-//       break;
-//     case RIGHT:
-//       snake.body[0].x += snake.vx * VELOCITY;
-//       snake.body[1].nextDirection = RIGHT;
-//       break;
-//     case LEFT:
-//       snake.body[0].x += -1 * snake.vx * VELOCITY;
-//       snake.body[1].nextDirection = LEFT;
-//       break;
-//     default:
-//       console.log('reached default');
-//   }
-
-//   for (let i = 1; i < snake.body.length; i++) {
-//     /*
-//     Isn't working because I currently don't have an initial speed,
-//     so cBody.x && .y will never be turnCord.x & .y
-//     Should i start game with body moving in direction? probably not.
-//     Need to think of way to update everything nicely
-//     */
-//     const cBody = snake.body[i];
-//     console.log({ cBody });
-//     if (
-//       cBody.currentDirection !== cBody.nextDirection &&
-//       cBody.x === cBody.turnCord.x &&
-//       cBody.y === cBody.turnCords.y
-//     ) {
-//       console.log('hit switch');
-//       cBody.currentDirection = cBody.nextDirection;
-//     }
-
-//     switch (cBody.currentDirection) {
-//       case UP:
-//         console.log('hit up');
-//         cBody.y += -1 * VELOCITY;
-//         break;
-//       case DOWN:
-//         console.log('hit down');
-//         cBody.y += VELOCITY;
-//         break;
-//       case RIGHT:
-//         console.log('hit right');
-//         cBody.x += VELOCITY;
-//         break;
-//       case LEFT:
-//         console.log('hit left');
-//         cBody.x += -1 * VELOCITY;
-//         break;
-//       default:
-//         console.log('reached default');
-//     }
-//     snake.body[i] = cBody;
-//   }
-// }
 
 function updateSnakeDirection() {
   /* 
@@ -243,6 +217,7 @@ function updateSnakeDirection() {
     snake.addTurn(snake.body[0].x, snake.body[0].y, snake.nextInput);
     const turns = snake.turns;
     console.log({ turns });
+    return;
   }
 
   if (
@@ -252,30 +227,25 @@ function updateSnakeDirection() {
   ) {
     snake.userInput = snake.nextInput;
     snake.addTurn(snake.body[0].x, snake.body[0].y, snake.nextInput);
-    const turns = snake.turns;
-    console.log({ turns });
+    return;
   }
-
-  for (let i = 0; i < snake.body.length; i++) {}
 
   if (
     snake.turns.length > 0 &&
     snake.turnIndex < snake.body.length &&
-    snake.body[snake.turnIndex].x === snake.turns[0].x &&
-    snake.body[snake.turnIndex].y === snake.turns[0].y
+    snake.body[snake.turnIndex].x === snake.turns[snake.currentTurn].x &&
+    snake.body[snake.turnIndex].y === snake.turns[snake.currentTurn].y
   ) {
-    snake.body[snake.turnIndex].direction = snake.turns[0].direction;
+    snake.body[snake.turnIndex].direction =
+      snake.turns[snake.currentTurn].direction;
     snake.increaseTurnIndex();
+    return;
   }
 
   if (snake.turnIndex >= snake.body.length) {
-    console.log('turn index >= body.length');
     snake.increaseTurnIndex();
+    return;
   }
-  let tIndex = snake.turnIndex;
-  let sBody = snake.body.length;
-
-  // console.log({ tIndex, sBody });
 }
 
 function updateScore() {
@@ -372,6 +342,31 @@ function handleKeyboardInput() {
 }
 
 (() => {
+  let stop = false;
+  let frameCount = 0;
+  let fps, fpsInterval, startTime, now, then, elapsed;
+
+  function startAnimating(fps) {
+    fpsInterval = 1000 / fps;
+    then = window.performance.now();
+    startTime = then;
+    animate();
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    now = window.performance.now();
+    elapsed = now - then;
+
+    if (elapsed > fpsInterval) {
+      then = now - (elapsed % fpsInterval);
+
+      //draw here
+      render();
+      update();
+    }
+  }
+
   function main() {
     window.requestAnimationFrame(main);
     update();
@@ -383,4 +378,6 @@ function handleKeyboardInput() {
   snake.increaseBody(2, 2);
   snake.increaseBody(1, 2);
   main();
+
+  // startAnimating(60);
 })();
